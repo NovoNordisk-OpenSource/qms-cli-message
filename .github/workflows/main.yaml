@@ -26,28 +26,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Mask inputs
-        run: |
-          INPUT_TARGET_VERSION=$(jq -r '.inputs.targetVersion' <<< "${{ inputs.targetVersion }}")
-          INPUT_MESSAGE=$(jq -r '.inputs.message' <<< "${{ inputs.message }}")
-          INPUT_EXPIRATION_DATE=$(jq -r '.inputs.expirationDate' <<< "${{ inputs.expirationDate }}")
-          echo ::add-mask::$INPUT_TARGET_VERSION
-          echo ::add-mask::$INPUT_MESSAGE
-          echo ::add-mask::$INPUT_EXPIRATION_DATE
-
       - name: Update QMS message
         shell: bash
         run: |
           echo "Updating QMS message..."
-          cat <<< "$(jq --indent 4 '.targetVersion = "$INPUT_TARGET_VERSION"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.message = "$INPUT_MESSAGE"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.expirationDate = "$INPUT_EXPIRATION_DATE"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > message.json
 
       - name: Encrypt QMS Message
         shell: bash
         run: |
           echo "Encrypting QMS message..."
-          openssl aes-256-cbc -in message.json -out message.enc -pass pass:${{ secrets.PASSWORD }}
+          openssl enc -aes-256-cbc -md md5 -salt -in <input-file> -out <output-file>.enc -pass pass:${{ secrets.PASSWORD }}
 
       - name: Commit and push changes
         shell: bash
