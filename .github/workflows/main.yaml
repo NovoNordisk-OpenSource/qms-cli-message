@@ -1,0 +1,52 @@
+name: QMS Message Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      targetVersion:
+        type: string
+        description: 'The version of the QMS message to update'
+        required: true
+      message:
+        type: string
+        description: 'The message to be sent to the user'
+        required: true
+      expirationDate:
+        type: string
+        description: 'The expiration date of the message'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  update_message:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update QMS message
+        shell: bash
+        run: |
+          echo "Message targeting QMS version: ${{ inputs.targetVersion }}"
+          echo "Message that will be sent: ${{ inputs.message }}"
+          echo "Message expiration date: ${{ inputs.expirationDate }}"
+          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > temp-message.json
+          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > temp-message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > temp-message.json
+
+      - name: Encrypt QMS Message
+        shell: bash
+        run: |
+          echo "Encrypting QMS message"
+          openssl aes-256-cbc -in temp-message.json -out message.enc -pass pass:${{ secrets.PASSWORD }}
+
+      - name: Commit and push changes
+        shell: bash
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add message.enc
+          git commit -m "Update JSON file with new inputs"
+          git push
