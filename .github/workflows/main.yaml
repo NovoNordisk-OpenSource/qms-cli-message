@@ -13,8 +13,9 @@ on:
         required: true
       expirationDate:
         type: string
-        description: 'The expiration date of the message'
-        required: false
+        description: 'The expiration date of the message (format: YYYY-MM-DD)'
+        required: true
+        pattern: '^\d{4}-\d{2}-\d{2}$'
 
 permissions:
   contents: write
