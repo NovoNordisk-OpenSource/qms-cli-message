@@ -29,14 +29,15 @@ jobs:
       - name: Update QMS message
         shell: bash
         run: |
-          cat <<< "$(jq --indent 4 '.targetVersion = "::add-mask::${{ inputs.targetVersion }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.message = "::add-mask::${{ inputs.message }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.expirationDate = "::add-mask::${{ inputs.expirationDate }}"' message.json)" > message.json
+          echo "Applying changes to message..."
+          jq --indent 4 --arg targetVersion "${{ inputs.targetVersion }}" '.targetVersion = $targetVersion' message.json > message.json
+          jq --indent 4 --arg message "${{ inputs.message }}" '.message = $message' message.json > message.json
+          jq --indent 4 --arg expirationDate "${{ inputs.expirationDate }}" '.expirationDate = $expirationDate' message.json > message.json
 
       - name: Encrypt QMS Message
         shell: bash
         run: |
-          echo "Encrypting QMS message"
+          echo "Encrypting QMS message..."
           openssl aes-256-cbc -in message.json -out message.enc -pass pass:${{ secrets.PASSWORD }}
 
       - name: Commit and push changes
