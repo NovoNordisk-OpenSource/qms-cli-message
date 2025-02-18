@@ -26,13 +26,19 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Mask inputs
+        run: |
+          echo "::add-mask::${{ inputs.targetVersion }}"
+          echo "::add-mask::${{ inputs.message }}"
+          echo "::add-mask::${{ inputs.expirationDate }}"
+
       - name: Update QMS message
         shell: bash
         run: |
-          echo "Applying changes to message..."
-          jq --indent 4 --arg targetVersion "${{ inputs.targetVersion }}" '.targetVersion = $targetVersion' message.json > message.json
-          jq --indent 4 --arg message "${{ inputs.message }}" '.message = $message' message.json > message.json
-          jq --indent 4 --arg expirationDate "${{ inputs.expirationDate }}" '.expirationDate = $expirationDate' message.json > message.json
+          echo "Updating QMS message..."
+          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > message.json
 
       - name: Encrypt QMS Message
         shell: bash
