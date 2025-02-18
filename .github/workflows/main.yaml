@@ -1,5 +1,4 @@
 name: QMS Message Update
-
 on:
   workflow_dispatch:
     inputs:
@@ -15,31 +14,38 @@ on:
         type: string
         description: 'The expiration date of the message (format: YYYY-MM-DD)'
         required: true
-
 permissions:
   contents: write
-
 jobs:
   update_message:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-
+      
+      - name: Set and mask environment variables
+        run: |
+          echo "TARGET_VERSION=${{ inputs.targetVersion }}" >> $GITHUB_ENV
+          echo "MESSAGE=${{ inputs.message }}" >> $GITHUB_ENV
+          echo "EXPIRATION_DATE=${{ inputs.expirationDate }}" >> $GITHUB_ENV
+          echo "::add-mask::${{ inputs.targetVersion }}"
+          echo "::add-mask::${{ inputs.message }}"
+          echo "::add-mask::${{ inputs.expirationDate }}"
+      
       - name: Update QMS message
         shell: bash
         run: |
           echo "Updating QMS message..."
-          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > message.json
-
+          cat <<< "$(jq --indent 4 '.targetVersion = env.TARGET_VERSION' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.message = env.MESSAGE' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = env.EXPIRATION_DATE' message.json)" > message.json
+      
       - name: Encrypt QMS Message
         shell: bash
         run: |
           echo "Encrypting QMS message..."
           openssl enc -aes-256-cbc -md md5 -salt -in message.json -out message.enc -pass pass:${{ secrets.PASSWORD }}
-
+      
       - name: Commit and push changes
         shell: bash
         run: |
