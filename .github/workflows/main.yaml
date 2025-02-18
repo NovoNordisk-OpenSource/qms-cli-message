@@ -15,8 +15,6 @@ on:
         type: string
         description: 'The expiration date of the message (format: YYYY-MM-DD)'
         required: true
-        validate:
-          - pattern: '^\d{4}-\d{2}-\d{2}$'
 
 permissions:
   contents: write
@@ -31,12 +29,9 @@ jobs:
       - name: Update QMS message
         shell: bash
         run: |
-          echo "::add-mask::${{ inputs.targetVersion }}"
-          echo "::add-mask::${{ inputs.message }}"
-          echo "::add-mask::${{ inputs.expirationDate }}"
-          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.targetVersion = "::add-mask::${{ inputs.targetVersion }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.message = "::add-mask::${{ inputs.message }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = "::add-mask::${{ inputs.expirationDate }}"' message.json)" > message.json
 
       - name: Encrypt QMS Message
         shell: bash
