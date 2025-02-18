@@ -28,17 +28,20 @@ jobs:
 
       - name: Mask inputs
         run: |
-          ::add-mask::${{ inputs.targetVersion }}
-          ::add-mask::${{ inputs.message }}
-          ::add-mask::${{ inputs.expirationDate }}
+          INPUT_TARGET_VERSION=$(jq -r '.inputs.targetVersion' <<< "${{ inputs.targetVersion }}")
+          INPUT_MESSAGE=$(jq -r '.inputs.message' <<< "${{ inputs.message }}")
+          INPUT_EXPIRATION_DATE=$(jq -r '.inputs.expirationDate' <<< "${{ inputs.expirationDate }}")
+          echo ::add-mask::$INPUT_TARGET_VERSION
+          echo ::add-mask::$INPUT_MESSAGE
+          echo ::add-mask::$INPUT_EXPIRATION_DATE
 
       - name: Update QMS message
         shell: bash
         run: |
           echo "Updating QMS message..."
-          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.targetVersion = "$INPUT_TARGET_VERSION"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.message = "$INPUT_MESSAGE"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = "$INPUT_EXPIRATION_DATE"' message.json)" > message.json
 
       - name: Encrypt QMS Message
         shell: bash
