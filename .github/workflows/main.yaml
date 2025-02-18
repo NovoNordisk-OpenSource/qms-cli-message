@@ -30,9 +30,9 @@ jobs:
         shell: bash
         run: |
           echo "Updating QMS message..."
-          jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json > message.json
-          jq --indent 4 '.message = "${{ inputs.message }}"' message.json > message.json
-          jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json > message.json
+          jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json > tmp.json && mv tmp.json message.json
+          jq --indent 4 '.message = "${{ inputs.message }}"' message.json > tmp.json && mv tmp.json message.json
+          jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json > tmp.json && mv tmp.json message.json
 
       - name: Encrypt QMS Message
         shell: bash
