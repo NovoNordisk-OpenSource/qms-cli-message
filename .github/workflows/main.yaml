@@ -28,9 +28,9 @@ jobs:
 
       - name: Mask inputs
         run: |
-          echo "::add-mask::${{ inputs.targetVersion }}"
-          echo "::add-mask::${{ inputs.message }}"
-          echo "::add-mask::${{ inputs.expirationDate }}"
+          ::add-mask::${{ inputs.targetVersion }}
+          ::add-mask::${{ inputs.message }}
+          ::add-mask::${{ inputs.expirationDate }}
 
       - name: Update QMS message
         shell: bash
