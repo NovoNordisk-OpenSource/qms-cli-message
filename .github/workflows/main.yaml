@@ -29,18 +29,15 @@ jobs:
       - name: Update QMS message
         shell: bash
         run: |
-          echo "Message targeting QMS version: ${{ inputs.targetVersion }}"
-          echo "Message that will be sent: ${{ inputs.message }}"
-          echo "Message expiration date: ${{ inputs.expirationDate }}"
-          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > temp-message.json
-          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > temp-message.json
-          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > temp-message.json
+          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > message.json
 
       - name: Encrypt QMS Message
         shell: bash
         run: |
           echo "Encrypting QMS message"
-          openssl aes-256-cbc -in temp-message.json -out message.enc -pass pass:${{ secrets.PASSWORD }}
+          openssl aes-256-cbc -in message.json -out message.enc -pass pass:${{ secrets.PASSWORD }}
 
       - name: Commit and push changes
         shell: bash
