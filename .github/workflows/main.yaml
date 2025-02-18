@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           echo "Encrypting QMS message..."
-          openssl enc -aes-256-cbc -md md5 -salt -in <input-file> -out <output-file>.enc -pass pass:${{ secrets.PASSWORD }}
+          openssl enc -aes-256-cbc -md md5 -salt -in message.json -out message.enc -pass pass:${{ secrets.PASSWORD }}
 
       - name: Commit and push changes
         shell: bash
