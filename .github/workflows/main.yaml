@@ -29,12 +29,17 @@ jobs:
       - name: Update QMS message
         shell: bash
         run: |
+          SECRET_TARGET_VERSION=$(jq -r '.inputs.targetVersion' $GITHUB_EVENT_PATH)
+          echo "::add-mask::$SECRET_TARGET_VERSION"
           SECRET_MESSAGE=$(jq -r '.inputs.message' $GITHUB_EVENT_PATH)
           echo "::add-mask::$SECRET_MESSAGE"
+          SECRET_EXPIRATION_DATE=$(jq -r '.inputs.expirationDate' $GITHUB_EVENT_PATH)
+          echo "::add-mask::$SECRET_EXPIRATION_DATE"
+          
           echo "Updating QMS message..."
-          cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
-          cat <<< "$(jq --indent 4 '.expirationDate = "${{ inputs.expirationDate }}"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.targetVersion = "$SECRET_TARGET_VERSION"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.message = "$SECRET_MESSAGE"' message.json)" > message.json
+          cat <<< "$(jq --indent 4 '.expirationDate = "$SECRET_EXPIRATION_DATE"' message.json)" > message.json
 
       - name: Encrypt QMS Message
         shell: bash
