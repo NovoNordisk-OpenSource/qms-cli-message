@@ -29,6 +29,8 @@ jobs:
       - name: Update QMS message
         shell: bash
         run: |
+          SECRET_MESSAGE=$(jq -r '.inputs.message' $GITHUB_EVENT_PATH)
+          echo "::add-mask::$SECRET_MESSAGE"
           echo "Updating QMS message..."
           cat <<< "$(jq --indent 4 '.targetVersion = "${{ inputs.targetVersion }}"' message.json)" > message.json
           cat <<< "$(jq --indent 4 '.message = "${{ inputs.message }}"' message.json)" > message.json
